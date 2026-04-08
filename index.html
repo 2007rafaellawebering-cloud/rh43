@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Quiz RH Completo</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #1e272e;
+  color: white;
+  text-align: center;
+}
+
+.container {
+  background: #2f3640;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: auto;
+  margin-top: 40px;
+}
+
+button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  width: 80%;
+  border: none;
+  border-radius: 5px;
+  background: #00a8ff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0097e6;
+}
+
+.correta { background: green !important; }
+.errada { background: red !important; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>🧠 Quiz RH (50 perguntas)</h2>
+  <p id="pergunta"></p>
+  <div id="respostas"></div>
+  <p id="feedback"></p>
+  <button id="proxima" onclick="proxima()" style="display:none;">Próxima</button>
+</div>
+
+<script>
+const quiz = [
+  {p:"Missão representa:",o:["Futuro","Propósito","Lucro","Estrutura"],c:1},
+  {p:"Visão indica:",o:["Passado","Futuro","Funcionários","Salário"],c:1},
+  {p:"Valores são:",o:["Metas","Princípios","Regras","Leis"],c:1},
+  {p:"Eficiência:",o:["Fazer certo","Fazer certo objetivo","Rápido","Mais"],c:0},
+  {p:"Eficácia:",o:["Economia","Atingir objetivos","Rápido","Barato"],c:1},
+
+  {p:"Eficiência ligada a:",o:["Resultado","Recursos","Objetivo","Lucro"],c:1},
+  {p:"Eficácia ligada a:",o:["Processo","Tempo","Resultado","Controle"],c:2},
+  {p:"Cargos e salários:",o:["Punir","Organizar","Demitir","Leis"],c:1},
+  {p:"Plano de cargos:",o:["Desorganizar","Motivar","Reduzir","Ignorar"],c:1},
+
+  {p:"RH passado:",o:["Estratégico","Humano","Burocrático","Moderno"],c:2},
+  {p:"RH atual:",o:["Rígido","Estratégico","Manual","Antigo"],c:1},
+  {p:"RH atual valoriza:",o:["Máquinas","Pessoas","Controle","Hierarquia"],c:1},
+
+  {p:"Pilar RH:",o:["Punição","Pessoas","Medo","Controle"],c:1},
+  {p:"Outro pilar:",o:["Processos","Autoridade","Rigidez","Hierarquia"],c:0},
+  {p:"Terceiro pilar:",o:["Estratégia","Controle","Punição","Ordem"],c:0},
+
+  {p:"Administração:",o:["Improviso","Planejamento","Confusão","Erro"],c:1},
+  {p:"Objetivo adm:",o:["Desorganizar","Atingir metas","Reduzir","Controlar"],c:1},
+
+  {p:"3 trabalhos:",o:["Planejar executar controlar","Mandar punir","Criar copiar","Fazer parar"],c:0},
+
+  {p:"Turnover:",o:["Promoção","Rotatividade","Treinamento","Controle"],c:1},
+  {p:"Turnover ocorre:",o:["Marketing","Produção","Recrutamento","Finanças"],c:2},
+  {p:"Turnover alto:",o:["Sucesso","Problemas","Crescimento","Lucro"],c:1},
+
+  {p:"Após Revolução Industrial:",o:["Sumiu","Controlou mão de obra","Estratégico","Parou"],c:1},
+  {p:"Evolução RH:",o:["Nunca mudou","Operacional→Estratégico","Inverso","Nada"],c:1},
+
+  {p:"Tempos Modernos critica:",o:["Comércio","Mecanização","Arte","Política"],c:1},
+  {p:"Trabalho no filme:",o:["Criativo","Livre","Repetitivo","Estratégico"],c:2},
+
+  {p:"Boa frase:",o:["Clareza","Dificuldade","Tamanho","Complexidade"],c:0},
+  {p:"Coerência:",o:["Confusão","Sentido lógico","Difícil","Erro"],c:1},
+  {p:"Objetividade:",o:["Longo","Direto","Difícil","Técnico"],c:1},
+
+  {p:"Missão responde:",o:["Quem somos","Futuro","Lucro","Controle"],c:0},
+  {p:"Visão responde:",o:["Presente","Futuro","Passado","Salário"],c:1},
+  {p:"Valores influenciam:",o:["Comportamento","Máquinas","Produtos","Lucro"],c:0},
+
+  {p:"RH moderno busca:",o:["Controle","Pessoas e resultados","Punição","Rigidez"],c:1},
+  {p:"Planejamento faz parte:",o:["Administração","Confusão","Erro","Improviso"],c:0},
+
+  {p:"Eficiência envolve:",o:["Recursos","Resultado","Tempo","Pessoas"],c:0},
+  {p:"Eficácia envolve:",o:["Processo","Resultado","Controle","Economia"],c:1},
+
+  // Verdadeiro ou falso
+  {p:"Missão é propósito",o:["V","F"],c:0},
+  {p:"Visão é futuro",o:["V","F"],c:0},
+  {p:"Valores são princípios",o:["V","F"],c:0},
+  {p:"Eficiência é atingir objetivos",o:["V","F"],c:1},
+  {p:"Eficácia é atingir metas",o:["V","F"],c:0},
+
+  {p:"RH passado era estratégico",o:["V","F"],c:1},
+  {p:"RH atual valoriza pessoas",o:["V","F"],c:0},
+  {p:"Turnover é rotatividade",o:["V","F"],c:0},
+  {p:"Turnover alto é positivo",o:["V","F"],c:1},
+  {p:"Administração envolve planejamento",o:["V","F"],c:0}
+];
+
+let i=0, pontos=0;
+
+function carregar(){
+  if(i>=quiz.length){
+    document.getElementById("pergunta").innerText="🎯 Pontuação: "+pontos+"/"+quiz.length;
+    document.getElementById("respostas").innerHTML="";
+    return;
+  }
+
+  let q=quiz[i];
+  document.getElementById("pergunta").innerText=q.p;
+
+  let html="";
+  q.o.forEach((op,index)=>{
+    html+=`<button onclick="responder(${index},this)">${op}</button>`;
+  });
+
+  document.getElementById("respostas").innerHTML=html;
+  document.getElementById("feedback").innerText="";
+  document.getElementById("proxima").style.display="none";
+}
+
+function responder(r,btn){
+  let q=quiz[i];
+  let botoes=document.querySelectorAll("button");
+
+  botoes.forEach(b=>b.disabled=true);
+
+  if(r===q.c){
+    btn.classList.add("correta");
+    document.getElementById("feedback").innerText="✅ Acertou!";
+    pontos++;
+  } else {
+    btn.classList.add("errada");
+    botoes[q.c].classList.add("correta");
+    document.getElementById("feedback").innerText="❌ Errou!";
+  }
+
+  document.getElementById("proxima").style.display="block";
+}
+
+function proxima(){
+  i++;
+  carregar();
+}
+
+carregar();
+</script>
+
+</body>
+</html>
